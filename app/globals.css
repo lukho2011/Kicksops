@@ -1,11 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --muted: #64748b;
-  --border: #e2e8f0;
+  --background: #f4f6ef;
+  --foreground: #10231a;
+  --panel: rgba(255, 255, 255, 0.84);
+  --panel-strong: #ffffff;
+  --muted: #536d63;
+  --border: rgba(15, 23, 42, 0.08);
+  --primary: #0f766e;
+  --primary-strong: #065f46;
+  --primary-soft: #dff7f0;
+  --accent: #f59e0b;
 }
 
 @theme inline {
@@ -25,7 +30,10 @@ html {
 
 body {
   margin: 0;
-  background: var(--background);
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(16, 185, 129, 0.12), transparent 35%),
+    linear-gradient(180deg, #f9faf7 0%, #eef5f0 100%);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -35,4 +43,36 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+::selection {
+  background: rgba(16, 185, 129, 0.22);
+}
+
+a {
+  transition: opacity 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+input::placeholder {
+  color: #94a3b8;
+}
+
+@layer components {
+  .glass-card {
+    background: var(--panel);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 25px 60px -35px rgba(15, 118, 110, 0.35);
+  }
+
+  .field-input {
+    @apply w-full rounded-2xl border border-slate-200 bg-white/80 px-3.5 py-3 text-sm text-slate-900 shadow-sm transition duration-200 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100;
+  }
+
+  .primary-button {
+    @apply inline-flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition hover:translate-y-[-1px] hover:shadow-xl hover:shadow-emerald-600/25 focus:outline-none focus:ring-4 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .secondary-button {
+    @apply inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200;
+  }
 }
