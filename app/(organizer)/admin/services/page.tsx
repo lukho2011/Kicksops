@@ -1,8 +1,9 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { createClient } from "../../../../lib/supabase/client";
 import {
   createService,
   deleteService,
@@ -15,13 +16,30 @@ export default function ServicesAdminPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [name, setName] = useState("");
   const [price, setPrice] = useState(80);
-  const [imageUrl, setImageUrl] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   const refresh = async () => {
     setServices(await listAllServices());
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const client = createClient();
+    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
+    const { data, error } = await client.storage.from("service-images").upload(fileName, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+    if (error) {
+      throw new Error(error.message || "Could not upload image.");
+    }
+
+    const { data: publicData } = client.storage.from("service-images").getPublicUrl(data.path);
+    return publicData.publicUrl;
   };
 
   useEffect(() => {
@@ -41,10 +59,12 @@ export default function ServicesAdminPage() {
     setBusy(true);
     setError("");
     try {
-      await createService({ name: name.trim(), price, imageUrl: imageUrl.trim() || null });
+      const uploadedUrl = imageFile ? await uploadImage(imageFile) : null;
+      await createService({ name: name.trim(), price, imageUrl: uploadedUrl });
       setName("");
       setPrice(80);
-      setImageUrl("");
+      setImagePreview(null);
+      setImageFile(null);
       await refresh();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Could not add the service.");
@@ -85,35 +105,57 @@ export default function ServicesAdminPage() {
         <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-800">{error}</p>
       ) : null}
 
-      <div className="mb-8 grid gap-3 rounded-3xl border border-slate-700 bg-slate-900/70 p-5 shadow-sm md:grid-cols-[1.3fr_160px_1fr_140px]">
-        <input
-          className="rounded-xl border border-slate-700 bg-slate-950/40 px-3 py-2.5 text-slate-100 outline-none placeholder:text-slate-400"
-          placeholder="Service name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-        <input
-          type="number"
-          min={0}
-          className="rounded-xl border border-slate-700 bg-slate-950/40 px-3 py-2.5 text-slate-100 outline-none placeholder:text-slate-400"
-          placeholder="Price"
-          value={price}
-          onChange={(event) => setPrice(Math.max(0, Number(event.target.value) || 0))}
-        />
-        <input
-          className="rounded-xl border border-slate-700 bg-slate-950/40 px-3 py-2.5 text-slate-100 outline-none placeholder:text-slate-400"
-          placeholder="Image URL (optional)"
-          value={imageUrl}
-          onChange={(event) => setImageUrl(event.target.value)}
-        />
-        <button
-          type="button"
-          onClick={add}
-          disabled={busy || !name.trim()}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
-        >
-          <Plus className="h-4 w-4" /> Add
-        </button>
+      <div className="mb-8 rounded-3xl border border-slate-700 bg-slate-900/70 p-5 shadow-sm">
+        <div className="grid gap-3 md:grid-cols-[1.3fr_160px_140px]">
+          <input
+            className="rounded-xl border border-slate-700 bg-slate-950/40 px-3 py-2.5 text-slate-100 outline-none placeholder:text-slate-400"
+            placeholder="Service name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+          <input
+            type="number"
+            min={0}
+            className="rounded-xl border border-slate-700 bg-slate-950/40 px-3 py-2.5 text-slate-100 outline-none placeholder:text-slate-400"
+            placeholder="Price"
+            value={price}
+            onChange={(event) => setPrice(Math.max(0, Number(event.target.value) || 0))}
+          />
+          <button
+            type="button"
+            onClick={add}
+            disabled={busy || !name.trim()}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-500 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+          >
+            <Plus className="h-4 w-4" /> Add
+          </button>
+        </div>
+
+        <label className="mt-4 flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-600 bg-slate-950/30 px-4 py-3 text-sm text-slate-200">
+          <Upload className="h-4 w-4" />
+          <span>{imageFile ? imageFile.name : "Upload service photo"}</span>
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0] ?? null;
+              setImageFile(file);
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = () => setImagePreview(String(reader.result));
+                reader.readAsDataURL(file);
+              } else {
+                setImagePreview(null);
+              }
+            }}
+          />
+        </label>
+
+        {imagePreview ? (
+          <img src={imagePreview} alt="Selected service preview" className="mt-4 h-28 w-full rounded-2xl object-cover ring-1 ring-slate-700" />
+        ) : null}
       </div>
 
       {loading ? (
@@ -156,17 +198,25 @@ export default function ServicesAdminPage() {
                     }}
                   />
                 </label>
-                <input
-                  className="min-w-[180px] rounded-lg border border-slate-700 bg-slate-950/40 px-2 py-1.5 text-sm text-slate-100 outline-none placeholder:text-slate-400"
-                  defaultValue={service.imageUrl ?? ""}
-                  placeholder="Image URL"
-                  onBlur={(event) => {
-                    const value = event.target.value.trim();
-                    if (value !== (service.imageUrl ?? "")) {
-                      void patch(service.id, { imageUrl: value || null });
-                    }
-                  }}
-                />
+                <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/40 px-2 py-1.5 text-sm text-slate-200">
+                  <Upload className="h-3.5 w-3.5" />
+                  <span>Replace photo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (event) => {
+                      const file = event.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        const url = await uploadImage(file);
+                        await patch(service.id, { imageUrl: url });
+                      } catch (caught) {
+                        setError(caught instanceof Error ? caught.message : "Could not upload the image.");
+                      }
+                    }}
+                  />
+                </label>
                 <button
                   type="button"
                   onClick={() => patch(service.id, { active: !service.active })}
