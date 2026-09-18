@@ -406,10 +406,13 @@ export async function updateService(
 ): Promise<void> {
   requireConfig();
   const client = createClient();
-  const nextPatch = {
-    ...patch,
-    ...(patch.imageUrl !== undefined ? { image_url: patch.imageUrl?.trim() || null } : {}),
-  };
+  const nextPatch: Record<string, unknown> = {};
+
+  if (patch.name !== undefined) nextPatch.name = patch.name;
+  if (patch.price !== undefined) nextPatch.price = patch.price;
+  if (patch.active !== undefined) nextPatch.active = patch.active;
+  if (patch.imageUrl !== undefined) nextPatch.image_url = patch.imageUrl?.trim() || null;
+
   const { error } = await client.from("service_items").update(nextPatch).eq("id", id);
   if (error) {
     throw new Error(`Supabase service update failed (${describeError(error)})`);
