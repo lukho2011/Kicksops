@@ -47,22 +47,39 @@ export default function ShopPage() {
           {services.map((service) => (
             <div
               key={service.id}
-              className="group flex flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl"
+              className="group flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-transform duration-200 hover:-translate-y-1 hover:shadow-xl"
             >
-              <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
-                <Sparkles className="h-5 w-5" />
+              {service.imageUrl ? (
+                <img
+                  src={service.imageUrl}
+                  alt={service.name}
+                  className="h-44 w-full object-cover"
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                  }}
+                />
+              ) : (
+                <div className="flex h-44 items-center justify-center bg-gradient-to-br from-sky-600 via-indigo-600 to-slate-900 text-3xl font-bold text-white">
+                  <span>{service.name.charAt(0).toUpperCase()}</span>
+                </div>
+              )}
+
+              <div className="flex flex-1 flex-col p-6">
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <h2 className="text-lg font-semibold text-slate-900">{service.name}</h2>
+                <div className="mt-2 text-3xl font-bold text-slate-900">
+                  R {service.price.toLocaleString("en-ZA")}
+                  <span className="ml-1 text-sm font-normal text-slate-500">/ pair</span>
+                </div>
+                <Link
+                  href={`/book?service=${service.id}`}
+                  className="mt-6 inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                >
+                  Book this
+                </Link>
               </div>
-              <h2 className="text-lg font-semibold text-slate-900">{service.name}</h2>
-              <div className="mt-2 text-3xl font-bold text-slate-900">
-                R {service.price.toLocaleString("en-ZA")}
-                <span className="ml-1 text-sm font-normal text-slate-500">/ pair</span>
-              </div>
-              <Link
-                href={`/book?service=${service.id}`}
-                className="mt-6 inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-              >
-                Book this
-              </Link>
             </div>
           ))}
         </div>
