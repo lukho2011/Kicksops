@@ -13,12 +13,19 @@ export async function createServerSupabaseClient() {
           return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
-          for (const cookie of cookiesToSet) {
-            cookieStore.set(cookie.name, cookie.value, {
-              path: "/",
-              sameSite: "lax",
-              secure: process.env.NODE_ENV === "production",
-            });
+          // In a Server Component render the cookie store is read-only and this
+          // throws; that is expected — proxy.ts refreshes the session cookie on
+          // every request, so we can safely swallow it here.
+          try {
+            for (const cookie of cookiesToSet) {
+              cookieStore.set(cookie.name, cookie.value, {
+                path: "/",
+                sameSite: "lax",
+                secure: process.env.NODE_ENV === "production",
+              });
+            }
+          } catch {
+            // no-op: session refresh handled by proxy.ts
           }
         },
       },
