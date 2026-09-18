@@ -301,6 +301,7 @@ export type Service = {
   code: string;
   price: number;
   active: boolean;
+  imageUrl: string | null;
 };
 
 function requireConfig() {
@@ -315,7 +316,7 @@ export async function listServices(): Promise<Service[]> {
   const client = createClient();
   const { data, error } = await client
     .from("service_items")
-    .select("id, name, code, price, active")
+    .select("id, name, code, price, active, image_url")
     .eq("active", true)
     .order("price", { ascending: false });
 
@@ -329,6 +330,7 @@ export async function listServices(): Promise<Service[]> {
     code: row.code,
     price: Number(row.price),
     active: row.active,
+    imageUrl: row.image_url ?? null,
   }));
 }
 
@@ -338,7 +340,7 @@ export async function listAllServices(): Promise<Service[]> {
   const client = createClient();
   const { data, error } = await client
     .from("service_items")
-    .select("id, name, code, price, active")
+    .select("id, name, code, price, active, image_url")
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -351,6 +353,7 @@ export async function listAllServices(): Promise<Service[]> {
     code: row.code,
     price: Number(row.price),
     active: row.active,
+    imageUrl: row.image_url ?? null,
   }));
 }
 
@@ -362,7 +365,7 @@ function slugifyCode(name: string) {
     .replace(/^-+|-+$/g, "") || `service-${Date.now()}`;
 }
 
-export async function createService(input: { name: string; price: number }): Promise<Service> {
+export async function createService(input: { name: string; price: number; imageUrl?: string | null }): Promise<Service> {
   requireConfig();
   const client = createClient();
   const orgId = await ensureDemoOrgId();
@@ -372,21 +375,42 @@ export async function createService(input: { name: string; price: number }): Pro
 
   const { data, error } = await client
     .from("service_items")
-    .insert({ org_id: orgId, name: input.name, code: slugifyCode(input.name), price: input.price, active: true })
-    .select("id, name, code, price, active")
+    .insert({
+      org_id: orgId,
+      name: input.name,
+      code: slugifyCode(input.name),
+      price: input.price,
+      active: true,
+      image_url: input.imageUrl?.trim() || null,
+    })
+    .select("id, name, code, price, active, image_url")
     .single();
 
   if (error) {
     throw new Error(`Supabase service insert failed (${describeError(error)})`);
   }
 
-  return { id: data.id, name: data.name, code: data.code, price: Number(data.price), active: data.active };
+  return {
+    id: data.id,
+    name: data.name,
+    code: data.code,
+    price: Number(data.price),
+    active: data.active,
+    imageUrl: data.image_url ?? null,
+  };
 }
 
-export async function updateService(id: string, patch: { name?: string; price?: number; active?: boolean }): Promise<void> {
+export async function updateService(
+  id: string,
+  patch: { name?: string; price?: number; active?: boolean; imageUrl?: string | null },
+): Promise<void> {
   requireConfig();
   const client = createClient();
-  const { error } = await client.from("service_items").update(patch).eq("id", id);
+  const nextPatch = {
+    ...patch,
+    ...(patch.imageUrl !== undefined ? { image_url: patch.imageUrl?.trim() || null } : {}),
+  };
+  const { error } = await client.from("service_items").update(nextPatch).eq("id", id);
   if (error) {
     throw new Error(`Supabase service update failed (${describeError(error)})`);
   }
@@ -611,6 +635,8 @@ export async function getAnalytics() {
 
   const activeStages = new Set(["booked", "in_wash", "in_treatment", "drying", "finishing", "qc"]);
   const activeOrders = jobs.filter((job) => activeStages.has(job.current_stage)).length;
+  const highestService = topServices[0];
+  const busiestStage = Object.entries(stageCounts).sort((a, b) => b[1] - a[1])[0];
 
   return {
     revenue,
@@ -623,6 +649,12 @@ export async function getAnalytics() {
     stationCounts,
     topServices,
     revenueSeries,
+    summary: {
+      highestServiceName: highestService?.name ?? "No service yet",
+      highestServiceTotal: highestService?.total ?? 0,
+      busiestStageName: busiestStage?.[0] ?? "booked",
+      busiestStageCount: busiestStage?.[1] ?? 0,
+    },
   };
 }
 

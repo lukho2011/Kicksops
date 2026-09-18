@@ -34,10 +34,10 @@ export function PortalNav({ profile }: { profile: Profile }) {
   const links = NAV_BY_ROLE[profile.role];
 
   return (
-    <header className="sticky top-0 z-20 border-b border-emerald-100 bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-8">
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm font-black uppercase tracking-[0.24em] text-emerald-700">
+          <Link href="/" className="text-sm font-black uppercase tracking-[0.24em] text-sky-400">
             KicksOps
           </Link>
           <nav className="flex flex-wrap gap-1">
@@ -45,7 +45,7 @@ export function PortalNav({ profile }: { profile: Profile }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className="rounded-full px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-800"
+                className="rounded-full px-3 py-1.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-sky-300"
               >
                 {link.label}
               </Link>
@@ -54,14 +54,14 @@ export function PortalNav({ profile }: { profile: Profile }) {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link href="/account" className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-right transition hover:border-emerald-200 hover:bg-emerald-50">
-            <div className="text-sm font-semibold text-slate-900">{profile.fullName ?? profile.email}</div>
-            <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{ROLE_LABEL[profile.role]}</div>
+          <Link href="/account" className="rounded-full border border-slate-700 bg-slate-900/70 px-3 py-1.5 text-right transition hover:border-sky-500/50 hover:bg-slate-800">
+            <div className="text-sm font-semibold text-slate-100">{profile.fullName ?? profile.email}</div>
+            <div className="text-[11px] uppercase tracking-[0.12em] text-slate-400">{ROLE_LABEL[profile.role]}</div>
           </Link>
           <form action={signOut}>
             <button
               type="submit"
-              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              className="rounded-full border border-slate-700 bg-slate-900/70 px-3 py-1.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800"
             >
               Sign out
             </button>
