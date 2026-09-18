@@ -9,7 +9,7 @@ export default async function CustomerLayout({ children }: { children: ReactNode
   const profile = await requireRole(["customer"]);
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen">
       <PortalNav profile={profile} />
       {children}
     </div>

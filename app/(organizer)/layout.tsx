@@ -8,7 +8,7 @@ export default async function OrganizerLayout({ children }: { children: ReactNod
   const profile = await requireRole(["organizer"]);
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen">
       <PortalNav profile={profile} />
       {children}
     </div>
