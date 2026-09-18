@@ -51,7 +51,7 @@ export default function AdminPage() {
       </header>
 
       {error ? (
-        <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-800">{error}</p>
+        <p className="mb-4 rounded-2xl border border-rose-500/40 bg-rose-500/10 p-4 text-sm font-medium text-rose-300">{error}</p>
       ) : null}
 
       {loading || !data ? (

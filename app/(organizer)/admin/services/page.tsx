@@ -96,13 +96,13 @@ export default function ServicesAdminPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 md:px-8">
       <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">Services</p>
-        <h1 className="text-3xl font-bold text-slate-900">Manage services</h1>
-        <p className="mt-1 text-slate-500">Add, price, deactivate, or remove what customers can book.</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">Services</p>
+        <h1 className="text-3xl font-bold text-slate-100">Manage services</h1>
+        <p className="mt-1 text-slate-400">Add, price, deactivate, or remove what customers can book.</p>
       </header>
 
       {error ? (
-        <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-800">{error}</p>
+        <p className="mb-4 rounded-2xl border border-rose-500/40 bg-rose-500/10 p-4 text-sm font-medium text-rose-300">{error}</p>
       ) : null}
 
       <div className="mb-8 rounded-3xl border border-slate-700 bg-slate-900/70 p-5 shadow-sm">
@@ -159,9 +159,9 @@ export default function ServicesAdminPage() {
       </div>
 
       {loading ? (
-        <p className="text-slate-500">Loading…</p>
+        <p className="text-slate-400">Loading…</p>
       ) : services.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-600">
+        <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900/70 p-10 text-center text-slate-300">
           No services yet. Add your first one above.
         </div>
       ) : (

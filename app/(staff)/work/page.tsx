@@ -55,35 +55,35 @@ export default function WorkPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 md:px-8">
       <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">Work queue</p>
-        <h1 className="text-3xl font-bold text-slate-900">Operational board</h1>
-        <p className="mt-1 text-slate-500">Advance each pair through the wash stations.</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">Work queue</p>
+        <h1 className="text-3xl font-bold text-slate-100">Operational board</h1>
+        <p className="mt-1 text-slate-400">Advance each pair through the wash stations.</p>
       </header>
 
       {error ? (
-        <p className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-800">{error}</p>
+        <p className="mb-4 rounded-2xl border border-rose-500/40 bg-rose-500/10 p-4 text-sm font-medium text-rose-300">{error}</p>
       ) : null}
 
       {loading ? (
-        <p className="text-slate-500">Loading…</p>
+        <p className="text-slate-400">Loading…</p>
       ) : (
         <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-4">
             {activeJobs.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-600">
+              <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900/70 p-10 text-center text-slate-300">
                 No active orders in the queue.
               </div>
             ) : (
               activeJobs.map((order) => (
-                <div key={order.id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div key={order.id} className="rounded-3xl border border-slate-700 bg-slate-900/70 p-5 shadow-sm">
                   <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{order.reference}</div>
-                      <h2 className="text-xl font-semibold text-slate-900">
+                      <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{order.reference}</div>
+                      <h2 className="text-xl font-semibold text-slate-100">
                         {customers.find((customer) => customer.id === order.customerId)?.name ?? "Customer"}
                       </h2>
                     </div>
-                    <div className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-800">{order.status}</div>
+                    <div className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-medium text-emerald-300">{order.status}</div>
                   </div>
 
                   <div className="space-y-2">
@@ -93,18 +93,18 @@ export default function WorkPage() {
                       const nextStation = stationOrder[Math.min(currentIndex + 1, stationOrder.length - 1)];
 
                       return (
-                        <div key={pair.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                        <div key={pair.id} className="rounded-2xl border border-slate-700 bg-slate-800/60 p-3">
                           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                             <div>
-                              <div className="text-sm font-semibold text-slate-900">{pair.tag}</div>
-                              <div className="text-xs text-slate-500">
+                              <div className="text-sm font-semibold text-slate-100">{pair.tag}</div>
+                              <div className="text-xs text-slate-400">
                                 {pair.serviceName} • {pair.currentStation}
                               </div>
                             </div>
                             <button
                               type="button"
                               disabled={atEnd}
-                              className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-medium text-white disabled:opacity-40"
+                              className="rounded-xl bg-sky-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-sky-400 disabled:opacity-40"
                               onClick={() => advance(order, pair.id, nextStation)}
                             >
                               {atEnd ? "Ready" : `Move to ${nextStation}`}
@@ -119,10 +119,10 @@ export default function WorkPage() {
             )}
           </div>
 
-          <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <aside className="h-fit rounded-3xl border border-slate-700 bg-slate-900/70 p-5 shadow-sm">
             <div className="mb-4 flex items-center gap-2">
-              <PackageCheck className="h-5 w-5 text-emerald-600" />
-              <h2 className="text-xl font-semibold text-slate-900">Station board</h2>
+              <PackageCheck className="h-5 w-5 text-emerald-300" />
+              <h2 className="text-xl font-semibold text-slate-100">Station board</h2>
             </div>
             <div className="space-y-3">
               {stationOrder.map((station) => {
@@ -132,10 +132,10 @@ export default function WorkPage() {
                 );
 
                 return (
-                  <div key={station} className="rounded-2xl bg-slate-50 p-3">
+                  <div key={station} className="rounded-2xl bg-slate-800/60 p-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium capitalize text-slate-700">{station}</span>
-                      <span className="rounded-full bg-white px-2 py-1 text-xs font-medium text-slate-700">{count}</span>
+                      <span className="text-sm font-medium capitalize text-slate-200">{station}</span>
+                      <span className="rounded-full bg-slate-700 px-2 py-1 text-xs font-medium text-slate-100">{count}</span>
                     </div>
                   </div>
                 );
