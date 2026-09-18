@@ -1,13 +1,37 @@
-import { Activity, DollarSign, PackageCheck, ShieldCheck, Truck, Users } from "lucide-react";
+"use client";
 
-const statCards = [
-  { label: "Active orders", value: "42", icon: Activity, change: "+12%" },
-  { label: "Pairs in queue", value: "18", icon: PackageCheck, change: "-3" },
-  { label: "Revenue", value: "R 28,450", icon: DollarSign, change: "+8.2%" },
-  { label: "Unpaid", value: "R 4,920", icon: ShieldCheck, change: "4 jobs" },
-];
+import { Activity, DollarSign, PackageCheck, ShieldCheck, Truck, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+
+import { listJobs } from "../../lib/supabase/data";
 
 export default function DashboardPage() {
+  const [jobs, setJobs] = useState<Array<{ id: string; customerId: string; reference: string; status: string; notes: string; createdAt: string; pairs: Array<{ id: string; tag: string; currentStation: string; serviceName: string; price: number }> }>>([]);
+
+  useEffect(() => {
+    void (async () => {
+      const nextJobs = await listJobs();
+      setJobs(nextJobs);
+    })();
+  }, []);
+
+  const stationCounts = useMemo(() => {
+    const counts = { queue: 0, washing: 0, treating: 0, drying: 0, finishing: 0, qc: 0, ready: 0 };
+    for (const order of jobs) {
+      for (const pair of order.pairs) {
+        counts[pair.currentStation as keyof typeof counts] += 1;
+      }
+    }
+    return counts;
+  }, [jobs]);
+
+  const statCards = [
+    { label: "Active orders", value: String(jobs.length), icon: Activity, change: "+12%" },
+    { label: "Pairs in queue", value: String(stationCounts.queue), icon: PackageCheck, change: "-3" },
+    { label: "Revenue", value: `R ${jobs.reduce((total, order) => total + order.pairs.reduce((sum, pair) => sum + pair.price, 0), 0).toLocaleString("en-ZA")}`, icon: DollarSign, change: "+8.2%" },
+    { label: "Unpaid", value: "R 4,920", icon: ShieldCheck, change: "4 jobs" },
+  ];
+
   return (
     <main className="min-h-screen bg-slate-100 p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
@@ -44,10 +68,17 @@ export default function DashboardPage() {
               <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">Drying capacity healthy</span>
             </div>
             <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-              {['Queue', 'Wash', 'Treat', 'Dry', 'Finish', 'QC'].map((stage, index) => (
-                <div key={stage} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-                  <div className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">{stage}</div>
-                  <div className="text-2xl font-bold text-slate-900">{[12, 7, 6, 9, 4, 5][index]}</div>
+              {[
+                { stage: "Queue", count: stationCounts.queue },
+                { stage: "Wash", count: stationCounts.washing },
+                { stage: "Treat", count: stationCounts.treating },
+                { stage: "Dry", count: stationCounts.drying },
+                { stage: "Finish", count: stationCounts.finishing },
+                { stage: "QC", count: stationCounts.qc },
+              ].map((item) => (
+                <div key={item.stage} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                  <div className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">{item.stage}</div>
+                  <div className="text-2xl font-bold text-slate-900">{item.count}</div>
                   <div className="mt-1 text-xs text-slate-500">pairs</div>
                 </div>
               ))}

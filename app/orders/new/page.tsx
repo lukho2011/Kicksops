@@ -1,4 +1,9 @@
+"use client";
+
 import { ArrowRight, Camera, FileText, PackageCheck, ReceiptText, Tag } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+
+import { createJobRecord, listCustomers } from "../../../lib/supabase/data";
 
 const stepItems = [
   { label: "Customer", icon: FileText },
@@ -9,6 +14,43 @@ const stepItems = [
 ];
 
 export default function NewOrderPage() {
+  const [customers, setCustomers] = useState<Array<{ id: string; name: string; phone: string; email: string }>>([]);
+  const [form, setForm] = useState({
+    customerId: "",
+    pairCount: 2,
+    serviceName: "Standard Deep Clean",
+    notes: "Hi, I have two pairs of white sneakers that need cleaning. Can I bring them on Friday?",
+  });
+
+  useEffect(() => {
+    void (async () => {
+      const nextCustomers = await listCustomers();
+      setCustomers(nextCustomers);
+      if (nextCustomers[0]) {
+        setForm((current) => ({ ...current, customerId: nextCustomers[0].id }));
+      }
+    })();
+  }, []);
+
+  const previewTags = useMemo(
+    () =>
+      Array.from({ length: form.pairCount }, (_, index) => ({
+        id: index,
+        tag: `KX-1183-${String.fromCharCode(65 + index)}`,
+      })),
+    [form.pairCount],
+  );
+
+  const submit = async () => {
+    if (!form.customerId) return;
+    await createJobRecord({
+      customerId: form.customerId,
+      pairCount: form.pairCount,
+      serviceName: form.serviceName,
+      notes: form.notes,
+    });
+  };
+
   return (
     <main className="min-h-screen bg-slate-100 p-4 md:p-8">
       <div className="mx-auto max-w-6xl">
@@ -36,29 +78,37 @@ export default function NewOrderPage() {
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="mb-6 grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Customer name</label>
-                <input className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none" defaultValue="Lukho Mokoena" />
+                <label className="mb-2 block text-sm font-medium text-slate-700">Customer</label>
+                <select
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
+                  value={form.customerId}
+                  onChange={(event) => setForm((current) => ({ ...current, customerId: event.target.value }))}
+                >
+                  {customers.map((customer) => (
+                    <option key={customer.id} value={customer.id}>
+                      {customer.name}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Phone</label>
-                <input className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none" defaultValue="+27 82 123 4567" />
-              </div>
-            </div>
-
-            <div className="mb-6 grid gap-4 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Number of pairs</label>
-                <input className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none" defaultValue="2" />
-              </div>
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">Pickup day</label>
-                <input className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none" defaultValue="Friday" />
+                <input
+                  type="number"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
+                  value={form.pairCount}
+                  onChange={(event) => setForm((current) => ({ ...current, pairCount: Number(event.target.value) }))}
+                />
               </div>
             </div>
 
             <div className="mb-6">
               <label className="mb-2 block text-sm font-medium text-slate-700">WhatsApp / intake notes</label>
-              <textarea className="min-h-[120px] w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none" defaultValue="Hi, I have two pairs of white sneakers that need cleaning. Can I bring them on Friday?" />
+              <textarea
+                className="min-h-[120px] w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none"
+                value={form.notes}
+                onChange={(event) => setForm((current) => ({ ...current, notes: event.target.value }))}
+              />
             </div>
 
             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
@@ -80,20 +130,26 @@ export default function NewOrderPage() {
                 <Tag className="h-5 w-5 text-emerald-600" />
               </div>
               <ul className="space-y-2 text-sm text-slate-700">
-                <li className="rounded-xl bg-slate-50 p-3 font-medium">KX-1183-A</li>
-                <li className="rounded-xl bg-slate-50 p-3 font-medium">KX-1183-B</li>
+                {previewTags.map((preview) => (
+                  <li key={`tag-${preview.id}`} className="rounded-xl bg-slate-50 p-3 font-medium">
+                    {preview.tag}
+                  </li>
+                ))}
               </ul>
             </div>
 
             <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
               <h2 className="mb-4 text-lg font-semibold text-slate-900">Order summary</h2>
               <div className="space-y-3 text-sm text-slate-600">
-                <div className="flex justify-between"><span>Customer</span><span className="font-medium text-slate-900">Lukho Mokoena</span></div>
-                <div className="flex justify-between"><span>Pairs</span><span className="font-medium text-slate-900">2</span></div>
-                <div className="flex justify-between"><span>Service</span><span className="font-medium text-slate-900">Standard deep clean</span></div>
-                <div className="flex justify-between"><span>Estimated total</span><span className="font-medium text-slate-900">R 200</span></div>
+                <div className="flex justify-between"><span>Customer</span><span className="font-medium text-slate-900">{customers.find((customer) => customer.id === form.customerId)?.name ?? "Customer"}</span></div>
+                <div className="flex justify-between"><span>Pairs</span><span className="font-medium text-slate-900">{form.pairCount}</span></div>
+                <div className="flex justify-between"><span>Service</span><span className="font-medium text-slate-900">{form.serviceName}</span></div>
+                <div className="flex justify-between"><span>Estimated total</span><span className="font-medium text-slate-900">R {form.pairCount * 100}</span></div>
               </div>
-              <button className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 font-medium text-white">
+              <button
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 font-medium text-white"
+                onClick={submit}
+              >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>
             </div>

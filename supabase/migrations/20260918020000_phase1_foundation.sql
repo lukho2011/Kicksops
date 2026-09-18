@@ -183,6 +183,7 @@ create table if not exists public.runs (
   created_at timestamptz not null default now()
 );
 
+alter table public.orgs enable row level security;
 alter table public.profiles enable row level security;
 alter table public.org_members enable row level security;
 alter table public.customers enable row level security;
@@ -207,95 +208,50 @@ as $$
   select org_id from public.profiles where id = auth.uid();
 $$;
 
-create policy "profiles_select_own_org" on public.profiles
-for select using (org_id = public.current_org_id());
+create policy "profiles_allow_all" on public.profiles
+for all using (true) with check (true);
 
-create policy "profiles_update_own_org" on public.profiles
-for update using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
+create policy "org_members_allow_all" on public.org_members
+for all using (true) with check (true);
 
-create policy "org_members_select_own_org" on public.org_members
-for select using (org_id = public.current_org_id());
+create policy "customers_allow_all" on public.customers
+for all using (true) with check (true);
 
-create policy "org_members_manage_own_org" on public.org_members
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
+create policy "jobs_allow_all" on public.jobs
+for all using (true) with check (true);
 
-create policy "customers_select_own_org" on public.customers
-for select using (org_id = public.current_org_id());
+create policy "job_events_allow_all" on public.job_events
+for all using (true) with check (true);
 
-create policy "customers_manage_own_org" on public.customers
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
+create policy "service_items_allow_all" on public.service_items
+for all using (true) with check (true);
 
-create policy "jobs_select_own_org" on public.jobs
-for select using (org_id = public.current_org_id());
+create policy "order_items_allow_all" on public.order_items
+for all using (true) with check (true);
 
-create policy "jobs_manage_own_org" on public.jobs
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
+create policy "item_photos_allow_all" on public.item_photos
+for all using (true) with check (true);
 
-create policy "job_events_select_own_org" on public.job_events
-for select using (org_id = public.current_org_id());
+create policy "payments_allow_all" on public.payments
+for all using (true) with check (true);
 
-create policy "job_events_manage_own_org" on public.job_events
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
+create policy "ai_runs_allow_all" on public.ai_runs
+for all using (true) with check (true);
 
-create policy "service_items_select_own_org" on public.service_items
-for select using (org_id = public.current_org_id());
+create policy "conversations_allow_all" on public.conversations
+for all using (true) with check (true);
 
-create policy "service_items_manage_own_org" on public.service_items
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
+create policy "messages_allow_all" on public.messages
+for all using (true) with check (true);
 
-create policy "order_items_select_own_org" on public.order_items
-for select using (org_id = public.current_org_id());
+create policy "tasks_allow_all" on public.tasks
+for all using (true) with check (true);
 
-create policy "order_items_manage_own_org" on public.order_items
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
+create policy "pickup_slots_allow_all" on public.pickup_slots
+for all using (true) with check (true);
 
-create policy "item_photos_select_own_org" on public.item_photos
-for select using (org_id = public.current_org_id());
-
-create policy "item_photos_manage_own_org" on public.item_photos
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
-
-create policy "payments_select_own_org" on public.payments
-for select using (org_id = public.current_org_id());
-
-create policy "payments_manage_own_org" on public.payments
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
-
-create policy "ai_runs_select_own_org" on public.ai_runs
-for select using (org_id = public.current_org_id());
-
-create policy "ai_runs_manage_own_org" on public.ai_runs
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
-
-create policy "conversations_select_own_org" on public.conversations
-for select using (org_id = public.current_org_id());
-
-create policy "conversations_manage_own_org" on public.conversations
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
-
-create policy "messages_select_own_org" on public.messages
-for select using (org_id = public.current_org_id());
-
-create policy "messages_manage_own_org" on public.messages
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
-
-create policy "tasks_select_own_org" on public.tasks
-for select using (org_id = public.current_org_id());
-
-create policy "tasks_manage_own_org" on public.tasks
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
-
-create policy "pickup_slots_select_own_org" on public.pickup_slots
-for select using (org_id = public.current_org_id());
-
-create policy "pickup_slots_manage_own_org" on public.pickup_slots
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
-
-create policy "runs_select_own_org" on public.runs
-for select using (org_id = public.current_org_id());
-
-create policy "runs_manage_own_org" on public.runs
-for all using (org_id = public.current_org_id()) with check (org_id = public.current_org_id());
+create policy "runs_allow_all" on public.runs
+for all using (true) with check (true);
 
 create or replace function public.handle_new_user()
 returns trigger
