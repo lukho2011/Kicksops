@@ -21,13 +21,13 @@ export default async function LoginPage({
   return (
     <main className="flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-10">
       <div className="glass-card grid w-full max-w-6xl overflow-hidden rounded-[30px] border border-emerald-500/20 lg:grid-cols-[1.1fr_0.9fr]">
-        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-700 p-8 text-white sm:p-10 lg:p-12">
+        <section className="relative overflow-hidden bg-gradient-to-br from-[#0a2448] via-[#103c75] to-[#2b65ae] p-8 text-white sm:p-10 lg:p-12">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.18),_transparent_35%)]" />
           <div className="relative flex h-full flex-col justify-between">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-50">
                 <Sparkles className="h-3.5 w-3.5" />
-                KicksOps
+                Quad Care Shoes
               </div>
               <h1 className="mt-6 text-3xl font-bold tracking-tight sm:text-4xl">
                 Keep every pair looking its best.

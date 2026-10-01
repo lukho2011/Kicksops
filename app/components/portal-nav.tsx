@@ -34,11 +34,13 @@ export function PortalNav({ profile }: { profile: Profile }) {
   const links = NAV_BY_ROLE[profile.role];
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-20 border-b border-slate-700 bg-white/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-8">
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm font-black uppercase tracking-[0.24em] text-sky-400">
-            KicksOps
+          <Link href="/" aria-label="Quad Care Shoes home" className="flex shrink-0 flex-col leading-none text-[#103c75]">
+            <span className="font-[var(--font-oswald)] text-lg font-bold uppercase">Quad Care</span>
+            <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.34em]">Shoes</span>
+            <span className="mt-1 hidden text-[8px] font-medium uppercase tracking-[0.12em] text-slate-400 sm:block">Walk clean. Step fresh.</span>
           </Link>
           <nav className="flex flex-wrap gap-1">
             {links.map((link) => (
